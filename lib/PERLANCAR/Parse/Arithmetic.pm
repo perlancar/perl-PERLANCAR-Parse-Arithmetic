@@ -104,7 +104,7 @@ sub parse_arithmetic {
 1;
 # ABSTRACT: Parse arithmetic expression
 
-=head1 DESCRIPTION
+=head1 SYNOPSIS
 
  use PERLANCAR::Parse::Arithmetic qw(parse_arithmetic);
  say parse_arithmetic('1 + 2 * 3'); # => 7
