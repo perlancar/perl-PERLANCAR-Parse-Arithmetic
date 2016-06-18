@@ -4,7 +4,7 @@ use 5.010001;
 use strict;
 use warnings;
 
-my ($opr, %res);
+my %match;
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(parse_arithmetic);
@@ -14,7 +14,7 @@ sub parse_arithmetic {
         qr{
               (?&TOP)
               (?{
-                  $res{top} = $^R;
+                  $match{top} = $^R;
               })
 
               (?(DEFINE)
@@ -26,15 +26,15 @@ sub parse_arithmetic {
                   (?<EXPR>
                       (?&MULT_EXPR)
                       (?{
-                          $res{add} = $^R
+                          $match{add} = $^R
                       })
                       (?: \s* ([+-])
                           (?{
-                              $opr = $^N;
+                              $match{op_add} = $^N;
                           })
                           \s* (?&MULT_EXPR)
                           (?{
-                              $res{add} = $opr eq '+' ? $res{add} + $^R : $res{add} - $^R;
+                              $match{add} = $match{op_add} eq '+' ? $match{add} + $^R : $match{add} - $^R;
                           })
                           )*
                   )
@@ -42,15 +42,15 @@ sub parse_arithmetic {
                   (?<MULT_EXPR>
                       (?&POW_EXPR)
                       (?{
-                          $res{mult} = $^R;
+                          $match{mult} = $^R;
                       })
                       (?: \s* ([*/])
                           (?{
-                              $opr = $^N;
+                              $match{op_mult} = $^N;
                           }) \s*
                           (?&POW_EXPR)
                           (?{
-                              $res{mult} = $opr eq '*' ? $res{mult} * $^R : $res{mult} / $^R;
+                              $match{mult} = $match{op_mult} eq '*' ? $match{mult} * $^R : $match{mult} / $^R;
                           })
                           )*
                   )
@@ -58,19 +58,19 @@ sub parse_arithmetic {
                   (?<POW_EXPR>
                       (?&TERM)
                       (?{
-                          $res{pow} = [$^R];
+                          $match{pow} = [$^R];
                       })
                       (?: \s* \*\* \s* (?&TERM)
                           (?{
-                              unshift @{$res{pow}}, $^R;
+                              unshift @{$match{pow}}, $^R;
                           })
                       )*
                       (?{
                           # because ** is right-to-left, we collect first then
                           # apply from right to left
-                          my $res = $res{pow}[0];
-                          for (1..$#{$res{pow}}) {
-                              $res = $res{pow}[$_] ** $res;
+                          my $res = $match{pow}[0];
+                          for (1..$#{$match{pow}}) {
+                              $res = $match{pow}[$_] ** $res;
                           }
                           $res;
                       })
@@ -96,13 +96,13 @@ sub parse_arithmetic {
                   )
               )
       }x;
-    %res = ();
+    %match = ();
     $_[0] =~ $RE or return undef;
-    $res{top};
+    $match{top};
 }
 
 1;
-# ABSTRACT: Parse arithmetic expression
+# ABSTRACT: Parse arithmetic expmatchsion
 
 =head1 SYNOPSIS
 
