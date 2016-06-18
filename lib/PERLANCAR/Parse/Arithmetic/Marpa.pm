@@ -14,21 +14,16 @@ sub parse_arithmetic {
         grammar => <<'_',
 :default             ::= action=>::first
 lexeme default         = latm=>1
-:start               ::= top
+:start               ::= expr
 
-top                  ::= expr
-expr                 ::= mult_expr
-                       | expr op_add expr                action=>add
-mult_expr            ::= pow_expr
-                       | mult_expr op_mult mult_expr     action=>mult
-pow_expr             ::= term
-# XXX right assoc doesn't seem to work?
-                       | pow_expr '**' pow_expr          action=>pow assoc=>right
-term                 ::= '(' expr ')'                    action=>paren
-                       | literal
+expr                 ::= literal
+                       | '(' expr ')'                    action=>paren assoc=>group
+                      || expr '**' expr                  action=>pow   assoc=>right
+                      || expr '*' expr                   action=>mult
+                       | expr '/' expr                   action=>div
+                      || expr '+' expr                   action=>add
+                       | expr '-' expr                   action=>subtract
 
-op_add                 ~ [+-]
-op_mult                ~ [*/]
 literal                ~ digits
                        | sign digits
                        | digits '.' digits
@@ -41,11 +36,19 @@ _
         actions => {
             add => sub {
                 my $h = shift;
-                $_[1] eq '+' ? $_[0] + $_[2] : $_[0] - $_[2];
+                $_[0] + $_[2];
+            },
+            subtract => sub {
+                my $h = shift;
+                $_[0] - $_[2];
             },
             mult => sub {
                 my $h = shift;
-                $_[1] eq '*' ? $_[0] * $_[2] : $_[0] / $_[2];
+                $_[0] * $_[2];
+            },
+            div => sub {
+                my $h = shift;
+                $_[0] / $_[2];
             },
             pow => sub {
                 my $h = shift;
@@ -57,7 +60,7 @@ _
             },
         },
         trace_terminals => $ENV{DEBUG},
-        trace_values => $ENV{DEBUG},
+        trace_values    => $ENV{DEBUG},
     );
 
     $parser->($_[0]);
