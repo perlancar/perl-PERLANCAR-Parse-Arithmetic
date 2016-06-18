@@ -1,5 +1,12 @@
 Revision history for PERLANCAR-Parse-Arithmetic
 
+0.003   2016-06-18 (PERLANCAR)
+
+	- No functional changes.
+
+	- [dist] Forgot to add version numbers.
+
+
 0.002   2016-06-18 (PERLANCAR)
 
 	- Fix/optimize Marpa version (make right associativity work).
