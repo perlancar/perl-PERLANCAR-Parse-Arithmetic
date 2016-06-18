@@ -96,7 +96,6 @@ sub parse_arithmetic {
                   )
               )
       }x;
-    %match = ();
     $_[0] =~ $RE or return undef;
     $match{top};
 }
