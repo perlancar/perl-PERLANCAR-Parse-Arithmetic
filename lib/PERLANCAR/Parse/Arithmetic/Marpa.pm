@@ -38,28 +38,22 @@ ws                     ~ [\s]+
 _
         actions => {
             add => sub {
-                my $h = shift;
-                $_[0] + $_[2];
+                $_[1] + $_[3];
             },
             subtract => sub {
-                my $h = shift;
-                $_[0] - $_[2];
+                $_[1] - $_[3];
             },
             mult => sub {
-                my $h = shift;
-                $_[0] * $_[2];
+                $_[1] * $_[3];
             },
             div => sub {
-                my $h = shift;
-                $_[0] / $_[2];
+                $_[1] / $_[3];
             },
             pow => sub {
-                my $h = shift;
-                $_[0] ** $_[2];
+                $_[1] ** $_[3];
             },
             paren => sub {
-                my $h = shift;
-                $_[1];
+                $_[2];
             },
         },
         trace_terminals => $ENV{DEBUG},
